@@ -32,3 +32,18 @@ variable "external_ip" {
   type    = string
   default = "0.0.0.0/0"
 }
+
+variable "intance_key_name" {
+  type    = string
+  default = "key"
+}
+
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}
+
+variable "worker_count" {
+  type    = number
+  default = 2
+}
