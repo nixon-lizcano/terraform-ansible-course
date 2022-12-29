@@ -15,6 +15,13 @@ resource "aws_instance" "jenkins_master" {
   depends_on = [
     aws_main_route_table_association.set_master_default_rt_assoc
   ]
+
+  provisioner "local-exec" {
+    command = <<EOF
+aws --profile ${var.profile} ec2 wait instance-status-ok --region ${var.region_master} --instance-ids ${self.id}
+ansible-playbook --extra-vars 'passed_in_hosts=tag_Name_${self.tags.Name}' ./../ansible/jenkins-master.yml
+EOF
+  }
 }
 
 # Create EC2 in worker
@@ -36,4 +43,11 @@ resource "aws_instance" "jenkins_worker" {
     aws_main_route_table_association.set_worker_default_rt_assoc,
     aws_instance.jenkins_master
   ]
+
+  provisioner "local-exec" {
+    command = <<EOF
+aws --profile ${var.profile} ec2 wait instance-status-ok --region ${var.region_worker} --instance-ids ${self.id}
+ansible-playbook --extra-vars 'passed_in_hosts=tag_Name_${self.tags.Name}' ./../ansible/jenkins-worker.yml
+EOF
+  }
 }
